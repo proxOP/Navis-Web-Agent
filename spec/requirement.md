@@ -135,13 +135,13 @@ Navis is a voice-driven AI navigation agent implemented as a Chrome extension th
 
 ### External Services
 - Speech-to-text service integration (Web Speech API primary)
-- LLM API for intent parsing (AWS Bedrock with Claude/Llama models primary, OpenAI/Anthropic fallback)
-- Optional vision API for fallback scenarios (AWS Rekognition + Bedrock Vision, GPT-4V/Gemini Vision fallback)
-- Session state management (AWS DynamoDB)
-- Experience storage for RL training (AWS S3)
-- Model training and deployment (AWS SageMaker)
-- Monitoring and logging (AWS CloudWatch)
-- Serverless backend option (AWS Lambda + API Gateway)
+- LLM API for intent parsing (provider-agnostic model gateway; OpenAI, Anthropic, or equivalent)
+- Optional vision API for fallback scenarios (multimodal model provider for screenshot understanding)
+- Session state management (fast key-value or document store)
+- Experience storage for RL training (object storage or database-backed event log)
+- Model training and deployment (local pipeline or managed ML platform)
+- Monitoring and logging (application metrics, tracing, and centralized logs)
+- Backend API option (containerized or serverless HTTP service)
 
 ## Compliance & Standards
 
@@ -188,21 +188,21 @@ The system uses a **Semantic Element Detection + Reinforcement Learning** approa
 - **Reliable**: Semantic understanding + learned preferences
 
 ### LLM Integration Strategy:
-1. **Intent Parsing**: Single call to AWS Bedrock (Claude 3 Haiku for cost efficiency) to understand user goal and extract semantic requirements
+1. **Intent Parsing**: Single call to a configured LLM provider to understand user goal and extract semantic requirements
 2. **Semantic Analysis**: Local processing to score elements based on intent relevance
-3. **RL Decision**: Apply learned preferences to select best action candidate (models trained on AWS SageMaker)
-4. **Feedback Learning**: Update RL model based on action success and human feedback (experiences stored in AWS S3)
-5. **Vision Fallback**: AWS Rekognition + Bedrock Vision when semantic approach fails (< 5% cases)
-6. **Session Management**: AWS DynamoDB for fast session state storage with automatic TTL cleanup
-7. **Monitoring**: AWS CloudWatch for performance metrics and system health
+3. **RL Decision**: Apply learned preferences to select best action candidate using the current trained policy
+4. **Feedback Learning**: Update the RL model based on action success and human feedback, with experiences stored in a training data store
+5. **Vision Fallback**: Use a multimodal model only when semantic analysis fails (< 5% cases)
+6. **Session Management**: Maintain fast session state storage with automatic cleanup policies
+7. **Monitoring**: Capture performance metrics, logs, and system health through the selected observability stack
 
-### AWS Integration Benefits:
-- **Cost Efficiency**: 10-120x cheaper than OpenAI (Bedrock Claude 3 Haiku)
-- **Scalability**: Auto-scaling with Lambda and DynamoDB
-- **Reliability**: Multi-region deployment with AWS infrastructure
-- **Security**: IAM roles, VPC isolation, encryption at rest/transit
-- **Compliance**: AWS compliance certifications (SOC 2, HIPAA, etc.)
-- **Monitoring**: Built-in CloudWatch metrics and logging
+### Integration Benefits:
+- **Flexibility**: Works with different LLM, storage, and deployment providers
+- **Scalability**: Can run locally, on containers, or on serverless infrastructure
+- **Reliability**: Supports redundant deployments and provider failover
+- **Security**: Standard secret management, encryption, and least-privilege access controls
+- **Compliance**: Can align with the compliance posture of the chosen deployment environment
+- **Monitoring**: Uses standard metrics, logs, and tracing integrations
 
 ## Future Considerations
 

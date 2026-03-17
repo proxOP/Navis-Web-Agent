@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-Quick backend test script
-Tests that the backend starts and responds to health checks
-"""
+"""Backend smoke test for the minimal Navis API."""
 
 import sys
 import time
@@ -11,7 +8,7 @@ from subprocess import Popen, PIPE
 import signal
 
 def test_backend():
-    """Test backend startup and health check"""
+    """Test backend startup, health check, and basic analysis flow."""
     
     print("🚀 Starting Navis backend...")
     
@@ -42,54 +39,68 @@ def test_backend():
                 return False
     
     try:
-        # Test health endpoint
         print("🔍 Testing health endpoint...")
         response = requests.get("http://127.0.0.1:8000/health", timeout=5)
-        
-        if response.status_code == 200:
-            health_data = response.json()
-            print("\n✅ Backend is healthy!")
-            print(f"   Version: {health_data.get('version')}")
-            print(f"   Status: {health_data.get('status')}")
-            
-            print("\n📊 Component Status:")
-            components = health_data.get('components', {})
-            for name, status in components.items():
-                icon = "✅" if status else "⚠️"
-                print(f"   {icon} {name}: {status}")
-            
-            # Check AWS components specifically
-            aws_components = {
-                'bedrock_client': components.get('bedrock_client'),
-                'session_manager': components.get('session_manager'),
-                'experience_storage': components.get('experience_storage'),
-                'vision_fallback': components.get('vision_fallback')
-            }
-            
-            print("\n☁️  AWS Integration Status:")
-            all_aws_ready = all(aws_components.values())
-            if all_aws_ready:
-                print("   ✅ All AWS components ready!")
-                print("   💰 Using AWS services (10-120x cost savings)")
-            else:
-                print("   ⚠️  AWS components not configured")
-                print("   💡 Set AWS credentials to enable (see QUICK_AWS_SETUP.md)")
-                for name, status in aws_components.items():
-                    icon = "✅" if status else "❌"
-                    print(f"      {icon} {name}")
-            
-            print("\n🎯 RL Statistics:")
-            rl_stats = health_data.get('rl_statistics', {})
-            if rl_stats:
-                rl_agent_stats = rl_stats.get('rl_agent', {})
-                print(f"   Total experiences: {rl_agent_stats.get('total_experiences', 0)}")
-                print(f"   Exploration rate: {rl_agent_stats.get('exploration_rate', 0)}")
-            
-            print("\n✅ All tests passed!")
-            return True
-        else:
+        if response.status_code != 200:
             print(f"\n❌ Health check failed with status {response.status_code}")
             return False
+
+        health_data = response.json()
+        print("\n✅ Backend is healthy!")
+        print(f"   Version: {health_data.get('version')}")
+        print(f"   Status: {health_data.get('status')}")
+
+        print("\n📊 Component Status:")
+        components = health_data.get('components', {})
+        for name, status in components.items():
+            icon = "✅" if status else "⚠️"
+            print(f"   {icon} {name}: {status}")
+
+        print("\n🧪 Creating session...")
+        session_response = requests.post(
+            "http://127.0.0.1:8000/sessions",
+            json={"metadata": {"source": "smoke-test"}},
+            timeout=5,
+        )
+        session_response.raise_for_status()
+        session_id = session_response.json()["session_id"]
+        print(f"   ✅ Session created: {session_id}")
+
+        print("\n🧠 Parsing intent...")
+        intent_response = requests.post(
+            "http://127.0.0.1:8000/intent/parse",
+            json={
+                "session_id": session_id,
+                "user_goal": "click login button",
+                "page_context": {"title": "Example Login", "url": "https://example.com/login"},
+            },
+            timeout=5,
+        )
+        intent_response.raise_for_status()
+        intent_data = intent_response.json()
+        print(f"   ✅ Parsed intent: {intent_data.get('action_type')} -> {intent_data.get('target')}")
+
+        print("\n🎯 Running semantic analysis...")
+        analyze_response = requests.post(
+            "http://127.0.0.1:8000/semantic/analyze",
+            json={
+                "session_id": session_id,
+                "user_goal": "click login button",
+                "page_context": {"title": "Example Login", "url": "https://example.com/login"},
+                "elements": [
+                    {"selector": "#login", "tag": "button", "text": "Login", "is_visible": True, "is_enabled": True, "position": {"y": 120}},
+                    {"selector": "#forgot", "tag": "a", "text": "Forgot password", "is_visible": True, "is_enabled": True, "position": {"y": 320}},
+                ],
+            },
+            timeout=5,
+        )
+        analyze_response.raise_for_status()
+        analysis = analyze_response.json()
+        selected = analysis["decision"]["selected"]
+        print(f"   ✅ Selected candidate: {selected['selector']} ({selected['text']})")
+
+        print("\n✅ All tests passed!")
+        return True
             
     except requests.exceptions.ConnectionError:
         print("\n❌ Could not connect to backend")

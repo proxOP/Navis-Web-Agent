@@ -6,30 +6,6 @@ uvicorn[standard]==0.24.0
 
 # AI/LLM Integration
 openai==1.3.7
-anthropic==0.7.7
-boto3==1.34.0  # AWS SDK for Bedrock, DynamoDB, S3, Rekognition
-
-# Web Automation
-selenium==4.15.2
-webdriver-manager==4.0.1
-
-# Audio Processing
-speechrecognition==3.10.0
-pyaudio==0.2.11
-pydub==0.25.1
-
-# HTTP Requests
-requests==2.31.0
-httpx==0.25.2
 
 # Data Processing
 pydantic==2.5.0
-python-multipart==0.0.6
-numpy==1.26.2  # For RL agent
-
-# Utilities
-python-dotenv==1.0.0
-loguru==0.7.2
-
-# Optional: Local speech recognition
-# whisper==1.1.10  # Uncomment if you want local speech processing

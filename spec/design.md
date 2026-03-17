@@ -506,7 +506,7 @@ class VisionFallback:
         }
     
     async def analyze_screenshot(self, image_data, goal, failed_action, context):
-        # Call vision API (e.g., GPT-4V, Claude Vision, or AWS Bedrock)
+        # Call a multimodal vision API (e.g., GPT-4V, Claude Vision, Gemini)
         prompt = f"""
         The DOM-based action failed. Analyze this screenshot to complete the action.
         
@@ -1027,34 +1027,30 @@ class ReliabilityManager {
 })();
 ```
 
-## AWS Integration Architecture
+## Backend Integration Architecture
 
 ### Overview
-Navis leverages AWS services for scalable, cost-effective AI/ML operations while maintaining low latency and high reliability.
+Navis uses a provider-neutral backend architecture so the extension can work with different LLM, storage, observability, and deployment stacks without locking the system to a single cloud vendor.
 
-### AWS Services Integration
+### Core Service Responsibilities
 
-#### 1. Amazon Bedrock (LLM Integration)
+#### 1. LLM Gateway
 **Purpose**: Intent parsing and semantic understanding
 
-**Benefits**:
-- Multiple model options (Claude, Llama, Titan)
-- Pay-per-use pricing (no idle costs)
-- Built-in content filtering and safety
-- Lower latency than OpenAI for some regions
+**Responsibilities**:
+- Route intent parsing requests to the configured model provider
+- Normalize model responses into a stable JSON schema
+- Support fallback providers when the primary model is unavailable
+- Enforce request timeouts, retries, and safety checks
 
 **Implementation**:
 ```python
-import boto3
 import json
 
-class BedrockIntentParser:
-    def __init__(self):
-        self.bedrock = boto3.client(
-            service_name='bedrock-runtime',
-            region_name='us-east-1'
-        )
-        self.model_id = 'anthropic.claude-3-sonnet-20240229-v1:0'
+class IntentModelGateway:
+    def __init__(self, llm_client, model_name):
+        self.llm_client = llm_client
+        self.model_name = model_name
     
     async def parse_user_goal(self, voice_input, page_context):
         prompt = f"""
@@ -1066,150 +1062,97 @@ class BedrockIntentParser:
         Return JSON with goal, keywords, element_types, and confidence.
         """
         
-        request_body = {
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": 1000,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        }
-        
-        response = self.bedrock.invoke_model(
-            modelId=self.model_id,
-            body=json.dumps(request_body)
+        result = await self.llm_client.generate(
+            model=self.model_name,
+            prompt=prompt,
+            response_format="json"
         )
         
-        result = json.loads(response['body'].read())
-        return json.loads(result['content'][0]['text'])
+        return json.loads(result)
 ```
 
-**Cost Comparison**:
-- OpenAI GPT-4: ~$0.03 per 1K tokens
-- Bedrock Claude 3 Sonnet: ~$0.003 per 1K tokens (10x cheaper)
-- Bedrock Claude 3 Haiku: ~$0.00025 per 1K tokens (120x cheaper)
-
-#### 2. Amazon S3 (Experience Storage)
+#### 2. Experience Store
 **Purpose**: Store RL training data and user interaction patterns
 
-**Benefits**:
-- Durable storage for learning experiences
-- Low-cost archival ($0.023/GB/month)
-- Easy integration with other AWS services
-- Versioning for model rollback
+**Responsibilities**:
+- Persist action outcomes and user feedback events
+- Support append-only writes for training data
+- Allow replay for offline learning and debugging
+- Keep storage implementation swappable across file, object, or database backends
 
 **Implementation**:
 ```python
-import boto3
 import json
 from datetime import datetime
 
 class ExperienceStorage:
-    def __init__(self):
-        self.s3 = boto3.client('s3')
-        self.bucket_name = 'navis-rl-experiences'
+    def __init__(self, storage_client):
+        self.storage = storage_client
     
     async def store_experience(self, user_id, experience):
         key = f"experiences/{user_id}/{datetime.now().isoformat()}.json"
-        
-        self.s3.put_object(
-            Bucket=self.bucket_name,
-            Key=key,
-            Body=json.dumps(experience),
-            ServerSideEncryption='AES256'
-        )
+        await self.storage.write_json(key, experience)
     
     async def load_user_experiences(self, user_id, limit=100):
-        response = self.s3.list_objects_v2(
-            Bucket=self.bucket_name,
-            Prefix=f"experiences/{user_id}/",
-            MaxKeys=limit
-        )
-        
-        experiences = []
-        for obj in response.get('Contents', []):
-            data = self.s3.get_object(Bucket=self.bucket_name, Key=obj['Key'])
-            experiences.append(json.loads(data['Body'].read()))
-        
-        return experiences
+        keys = await self.storage.list_keys(f"experiences/{user_id}/", limit=limit)
+        return [await self.storage.read_json(key) for key in keys]
 ```
 
-#### 3. Amazon DynamoDB (Session State)
-**Purpose**: Fast session state management and real-time learning data
+#### 3. Session State Service
+**Purpose**: Fast session state management and short-lived execution context
 
-**Benefits**:
-- Single-digit millisecond latency
-- Automatic scaling
-- Pay-per-request pricing
-- TTL for automatic session cleanup
+**Responsibilities**:
+- Store active session state for the current task
+- Expire stale sessions automatically
+- Track recent actions, confidence scores, and feedback
 
 **Implementation**:
 ```python
-import boto3
 from datetime import datetime, timedelta
 
 class SessionStateManager:
-    def __init__(self):
-        self.dynamodb = boto3.resource('dynamodb')
-        self.table = self.dynamodb.Table('navis-sessions')
+    def __init__(self, session_store):
+        self.session_store = session_store
     
     async def store_session_state(self, session_id, state):
-        # TTL: auto-delete after 24 hours
-        ttl = int((datetime.now() + timedelta(hours=24)).timestamp())
-        
-        self.table.put_item(
-            Item={
-                'session_id': session_id,
+        expires_at = datetime.now() + timedelta(hours=24)
+        await self.session_store.set(
+            session_id,
+            {
                 'state': state,
                 'timestamp': datetime.now().isoformat(),
-                'ttl': ttl
+                'expires_at': expires_at.isoformat()
             }
         )
     
     async def get_session_state(self, session_id):
-        response = self.table.get_item(Key={'session_id': session_id})
-        return response.get('Item', {}).get('state')
+        item = await self.session_store.get(session_id)
+        return item.get('state') if item else None
     
     async def update_rl_metrics(self, session_id, metrics):
-        self.table.update_item(
-            Key={'session_id': session_id},
-            UpdateExpression='SET rl_metrics = :metrics',
-            ExpressionAttributeValues={':metrics': metrics}
-        )
+        await self.session_store.patch(session_id, {'rl_metrics': metrics})
 ```
 
-#### 4. Amazon SageMaker (RL Model Training)
+#### 4. Model Training Pipeline
 **Purpose**: Train and deploy reinforcement learning models at scale
 
-**Benefits**:
-- Managed training infrastructure
-- Built-in RL algorithms
-- Model versioning and deployment
-- A/B testing capabilities
+**Responsibilities**:
+- Consume stored interaction history
+- Train updated policies on a scheduled basis
+- Version and evaluate candidate models before rollout
+- Publish the active model to inference services or bundled artifacts
 
 **Implementation**:
 ```python
-import boto3
-import sagemaker
-from sagemaker.rl import RLEstimator
-
 class RLModelTrainer:
-    def __init__(self):
-        self.sagemaker = boto3.client('sagemaker')
-        self.role = 'arn:aws:iam::ACCOUNT:role/SageMakerRole'
+    def __init__(self, training_runtime, model_registry):
+        self.training_runtime = training_runtime
+        self.model_registry = model_registry
     
-    def train_rl_model(self, training_data_s3_path):
-        estimator = RLEstimator(
+    async def train_rl_model(self, training_dataset_uri):
+        job = await self.training_runtime.start_job(
             entry_point='train_rl.py',
-            source_dir='./rl_training',
-            role=self.role,
-            instance_type='ml.m5.xlarge',
-            instance_count=1,
-            framework='tensorflow',
-            toolkit='ray',
-            toolkit_version='2.1.0',
+            dataset_uri=training_dataset_uri,
             hyperparameters={
                 'learning_rate': 0.01,
                 'exploration_rate': 0.1,
@@ -1217,155 +1160,97 @@ class RLModelTrainer:
             }
         )
         
-        estimator.fit({'training': training_data_s3_path})
-        return estimator.model_data
-    
-    def deploy_model(self, model_data):
-        # Deploy to SageMaker endpoint for real-time inference
-        predictor = estimator.deploy(
-            initial_instance_count=1,
-            instance_type='ml.t2.medium'
-        )
-        return predictor.endpoint_name
+        model_artifact = await job.wait_for_result()
+        return await self.model_registry.register(model_artifact)
 ```
 
-#### 5. Amazon Rekognition (Vision Fallback)
+#### 5. Vision Fallback Service
 **Purpose**: Computer vision for element detection when DOM analysis fails
 
-**Benefits**:
-- Pre-trained models (no training needed)
-- Text detection in images
-- Object and scene detection
-- Lower cost than GPT-4V
+**Responsibilities**:
+- Analyze screenshots with a multimodal model
+- Extract candidate targets, coordinates, and confidence
+- Return actionable fallback output without changing the rest of the planner
 
 **Implementation**:
 ```python
-import boto3
 import base64
 
-class VisionFallbackAWS:
-    def __init__(self):
-        self.rekognition = boto3.client('rekognition')
-        self.bedrock = boto3.client('bedrock-runtime')
+class VisionFallbackService:
+    def __init__(self, vision_client):
+        self.vision_client = vision_client
     
     async def analyze_screenshot(self, screenshot_base64, goal):
-        # Decode image
         image_bytes = base64.b64decode(screenshot_base64)
         
-        # Use Rekognition for text detection
-        text_response = self.rekognition.detect_text(
-            Image={'Bytes': image_bytes}
-        )
-        
-        detected_texts = [
-            {
-                'text': item['DetectedText'],
-                'confidence': item['Confidence'],
-                'geometry': item['Geometry']
-            }
-            for item in text_response['TextDetections']
-            if item['Type'] == 'LINE'
-        ]
-        
-        # Use Bedrock with Claude for semantic understanding
         prompt = f"""
         User goal: {goal}
-        Detected text elements: {detected_texts}
-        
-        Which text element best matches the user's goal?
+        Identify the UI target that best matches the user's goal.
         Return the coordinates and confidence.
         """
         
-        # Call Bedrock for semantic matching
-        semantic_match = await self.call_bedrock_vision(prompt, image_bytes)
-        
-        return semantic_match
+        return await self.vision_client.analyze(
+            image_bytes=image_bytes,
+            prompt=prompt
+        )
 ```
 
-#### 6. Amazon CloudWatch (Monitoring & Logging)
+#### 6. Observability Layer
 **Purpose**: Monitor system performance and user interactions
 
-**Benefits**:
-- Real-time metrics and dashboards
-- Automated alerting
-- Log aggregation and analysis
-- Performance insights
+**Responsibilities**:
+- Record latency, success rates, and fallback frequency
+- Centralize logs for backend debugging
+- Provide dashboards and alerting through the selected telemetry stack
 
 **Implementation**:
 ```python
-import boto3
 from datetime import datetime
 
 class MetricsLogger:
-    def __init__(self):
-        self.cloudwatch = boto3.client('cloudwatch')
-        self.namespace = 'Navis/Navigation'
+    def __init__(self, metrics_client):
+        self.metrics = metrics_client
     
     async def log_intent_parsing_time(self, duration_ms):
-        self.cloudwatch.put_metric_data(
-            Namespace=self.namespace,
-            MetricData=[
-                {
-                    'MetricName': 'IntentParsingLatency',
-                    'Value': duration_ms,
-                    'Unit': 'Milliseconds',
-                    'Timestamp': datetime.now()
-                }
-            ]
+        await self.metrics.record(
+            name='intent_parsing_latency_ms',
+            value=duration_ms,
+            timestamp=datetime.now().isoformat()
         )
     
     async def log_action_success(self, action_type, success):
-        self.cloudwatch.put_metric_data(
-            Namespace=self.namespace,
-            MetricData=[
-                {
-                    'MetricName': f'{action_type}_Success',
-                    'Value': 1 if success else 0,
-                    'Unit': 'Count',
-                    'Timestamp': datetime.now()
-                }
-            ]
+        await self.metrics.record(
+            name=f'{action_type}_success',
+            value=1 if success else 0,
+            timestamp=datetime.now().isoformat()
         )
     
     async def log_rl_accuracy(self, accuracy):
-        self.cloudwatch.put_metric_data(
-            Namespace=self.namespace,
-            MetricData=[
-                {
-                    'MetricName': 'RLAccuracy',
-                    'Value': accuracy,
-                    'Unit': 'Percent',
-                    'Timestamp': datetime.now()
-                }
-            ]
+        await self.metrics.record(
+            name='rl_accuracy',
+            value=accuracy,
+            timestamp=datetime.now().isoformat()
         )
 ```
 
-#### 7. AWS Lambda (Serverless Backend)
-**Purpose**: Run backend API without managing servers
+#### 7. HTTP Backend
+**Purpose**: Run backend APIs without coupling the design to a single deployment platform
 
-**Benefits**:
-- Pay only for compute time used
-- Auto-scaling
-- No server management
-- Integration with API Gateway
+**Responsibilities**:
+- Expose intent parsing, semantic analysis, and vision fallback endpoints
+- Support deployment on local dev servers, containers, or serverless runtimes
+- Handle authentication, rate limiting, and CORS consistently
 
 **Implementation**:
 ```python
 import json
-import boto3
 
-# Lambda function for intent parsing
-def lambda_handler(event, context):
-    body = json.loads(event['body'])
+def handle_parse_intent(request, intent_service):
+    body = json.loads(request.body)
     voice_input = body['voice_input']
     page_context = body['page_context']
     
-    # Initialize Bedrock client
-    bedrock = boto3.client('bedrock-runtime')
-    
-    # Parse intent using Bedrock
-    intent = parse_intent_with_bedrock(bedrock, voice_input, page_context)
+    intent = intent_service.parse(voice_input, page_context)
     
     return {
         'statusCode': 200,
@@ -1377,83 +1262,67 @@ def lambda_handler(event, context):
     }
 ```
 
-### AWS Architecture Diagram
+### Backend Architecture Diagram
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     Chrome Extension (JS)                    │
-│                  ↓ HTTPS API Calls ↓                        │
+│                     Chrome Extension (JS)                  │
+│                  ↓ HTTPS API Calls ↓                       │
 └─────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────┐
-│              Amazon API Gateway + AWS Lambda                 │
-│                  (Serverless Backend)                        │
+│                    HTTP Backend Layer                      │
+│           (local server, container, or serverless)         │
 └─────────────────────────────────────────────────────────────┘
                             ↓
         ┌───────────────────┼───────────────────┐
         ↓                   ↓                   ↓
 ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
-│   Bedrock    │   │  DynamoDB    │   │      S3      │
-│ (LLM/Vision) │   │  (Sessions)  │   │ (Experiences)│
+│ LLM Gateway  │   │ Session      │   │ Experience   │
+│ (intent/ML)  │   │ Store        │   │ Store        │
 └──────────────┘   └──────────────┘   └──────────────┘
         ↓                                       ↓
 ┌──────────────┐                      ┌──────────────┐
-│ Rekognition  │                      │  SageMaker   │
-│   (Vision)   │                      │ (RL Training)│
+│ Vision       │                      │ RL Training  │
+│ Service      │                      │ Pipeline     │
 └──────────────┘                      └──────────────┘
         ↓                                       ↓
 ┌─────────────────────────────────────────────────────┐
-│              Amazon CloudWatch                       │
-│         (Monitoring & Logging)                       │
+│             Metrics, Logs, and Tracing             │
+│               (observability stack)                │
 └─────────────────────────────────────────────────────┘
 ```
 
-### Cost Optimization with AWS
+### Cost Optimization Principles
 
-**Estimated Monthly Costs** (for 10,000 active users):
+1. **Minimize LLM Calls**
+   - Use one intent parsing call per user goal
+   - Keep semantic analysis local whenever possible
 
-1. **Bedrock (Intent Parsing)**
-   - 10K users × 10 queries/day × 500 tokens = 50M tokens/month
-   - Claude 3 Haiku: $12.50/month
+2. **Keep State Lightweight**
+   - Store only short-lived session context
+   - Use compact event payloads for RL experience logging
 
-2. **DynamoDB (Session State)**
-   - 10K users × 10 requests/day = 100K requests/day
-   - On-demand pricing: ~$3/month
+3. **Train Asynchronously**
+   - Run RL training on a schedule instead of inline with user actions
+   - Reuse saved datasets and model versions
 
-3. **S3 (Experience Storage)**
-   - 10K users × 100 experiences × 1KB = 1GB storage
-   - Standard storage: $0.023/month
+4. **Use Vision Sparingly**
+   - Reserve screenshot analysis for DOM failures and low-confidence cases
 
-4. **Lambda (API Calls)**
-   - 100K requests/day × 200ms avg = 20K compute seconds
-   - Free tier covers most usage: ~$5/month
-
-5. **CloudWatch (Monitoring)**
-   - Basic metrics and logs: ~$10/month
-
-6. **SageMaker (RL Training)**
-   - Weekly training: 4 hours/month on ml.m5.xlarge
-   - ~$20/month
-
-**Total: ~$50/month for 10,000 users** (vs $300-500 with OpenAI)
-
-### AWS Security Best Practices
+### Security Best Practices
 
 ```python
-# Use AWS Secrets Manager for API keys
-import boto3
-
-class SecretsManager:
-    def __init__(self):
-        self.client = boto3.client('secretsmanager')
+class SecretsProvider:
+    def __init__(self, secrets_client):
+        self.secrets_client = secrets_client
     
-    def get_api_key(self, secret_name):
-        response = self.client.get_secret_value(SecretId=secret_name)
-        return response['SecretString']
+    async def get_api_key(self, secret_name):
+        return await self.secrets_client.get(secret_name)
 
-# Use IAM roles for service authentication
-# Use VPC for network isolation
-# Enable CloudTrail for audit logging
-# Use KMS for encryption at rest
+# Use least-privilege service credentials
+# Encrypt secrets and data at rest
+# Restrict network exposure for backend services
+# Maintain audit logs for backend access and configuration changes
 ```
 
 ## Performance Considerations
