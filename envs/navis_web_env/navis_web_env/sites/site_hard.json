@@ -1,0 +1,336 @@
+﻿{
+  "task_id": "hard",
+  "goal_instruction": "You are on the Orion Enterprise Help portal. Reach the Emergency Access Reset Playbook page.",
+  "start_page_id": "dashboard",
+  "target_page_id": "emergency_access_reset_playbook",
+  "max_steps": 11,
+  "distractor_taxonomy": ["near-target decoys", "looping support hubs", "repeated access terminology"],
+  "pages": {
+    "dashboard": {
+      "title": "Orion Enterprise Help",
+      "text": "The Orion help portal provides support for employees, administrators, security teams, and remote workers.",
+      "links": [
+        {
+          "link_id": "dash_employee_services",
+          "label": "Employee Services",
+          "href_slug": "/employees",
+          "role": "link",
+          "aria_label": "Open employee services",
+          "preview_text": "General support for staff accounts and requests.",
+          "destination_page_id": "employee_services"
+        },
+        {
+          "link_id": "dash_remote_work",
+          "label": "Remote Work",
+          "href_slug": "/remote-work",
+          "role": "link",
+          "aria_label": "Open remote work resources",
+          "preview_text": "VPN, device, and login guidance for remote work.",
+          "destination_page_id": "remote_work"
+        },
+        {
+          "link_id": "dash_admin_console",
+          "label": "Admin Console",
+          "href_slug": "/admin",
+          "role": "link",
+          "aria_label": "Open admin console resources",
+          "preview_text": "Admin-only service documentation.",
+          "destination_page_id": "admin_console"
+        }
+      ]
+    },
+    "employee_services": {
+      "title": "Employee Services",
+      "text": "Employee Services covers pay, onboarding, access help, and internal service requests.",
+      "links": [
+        {
+          "link_id": "employees_account_help",
+          "label": "Account Help",
+          "href_slug": "/employees/account-help",
+          "role": "link",
+          "aria_label": "Open account help",
+          "preview_text": "Password, sign-in, and account recovery help.",
+          "destination_page_id": "account_help"
+        },
+        {
+          "link_id": "employees_remote_work",
+          "label": "Remote Work",
+          "href_slug": "/remote-work",
+          "role": "link",
+          "aria_label": "Open remote work resources",
+          "preview_text": "Remote access and device setup.",
+          "destination_page_id": "remote_work"
+        },
+        {
+          "link_id": "employees_dashboard",
+          "label": "Portal Home",
+          "href_slug": "/",
+          "role": "link",
+          "aria_label": "Return to portal home",
+          "preview_text": "Back to the help dashboard.",
+          "destination_page_id": "dashboard"
+        }
+      ]
+    },
+    "account_help": {
+      "title": "Account Help",
+      "text": "Account Help includes password resets, secure access, multi-factor setup, and sign-in troubleshooting.",
+      "links": [
+        {
+          "link_id": "account_secure_access",
+          "label": "Secure Access",
+          "href_slug": "/employees/account-help/secure-access",
+          "role": "link",
+          "aria_label": "Open secure access resources",
+          "preview_text": "Secure sign-in and access recovery paths.",
+          "destination_page_id": "secure_access"
+        },
+        {
+          "link_id": "account_reset_center",
+          "label": "Password Reset Center",
+          "href_slug": "/employees/account-help/password-reset",
+          "role": "link",
+          "aria_label": "Open password reset center",
+          "preview_text": "Reset normal passwords and unlock accounts.",
+          "destination_page_id": "password_reset_center"
+        },
+        {
+          "link_id": "account_employee_services",
+          "label": "Employee Services",
+          "href_slug": "/employees",
+          "role": "link",
+          "aria_label": "Return to employee services",
+          "preview_text": "Back to the employee services hub.",
+          "destination_page_id": "employee_services"
+        }
+      ]
+    },
+    "secure_access": {
+      "title": "Secure Access",
+      "text": "Secure Access covers privileged sign-in, emergency access, and identity verification for critical systems.",
+      "links": [
+        {
+          "link_id": "secure_remote_signin",
+          "label": "Remote Sign-In",
+          "href_slug": "/secure-access/remote-sign-in",
+          "role": "link",
+          "aria_label": "Open remote sign-in resources",
+          "preview_text": "Access guides for secure remote authentication.",
+          "destination_page_id": "remote_signin"
+        },
+        {
+          "link_id": "secure_emergency_access",
+          "label": "Emergency Access",
+          "href_slug": "/secure-access/emergency-access",
+          "role": "link",
+          "aria_label": "Open emergency access resources",
+          "preview_text": "Critical access procedures and policies.",
+          "destination_page_id": "emergency_access"
+        },
+        {
+          "link_id": "secure_account_help",
+          "label": "Account Help",
+          "href_slug": "/employees/account-help",
+          "role": "link",
+          "aria_label": "Return to account help",
+          "preview_text": "Back to account help overview.",
+          "destination_page_id": "account_help"
+        }
+      ]
+    },
+    "remote_signin": {
+      "title": "Remote Sign-In",
+      "text": "Remote Sign-In explains remote authentication, device trust, and secure session recovery.",
+      "links": [
+        {
+          "link_id": "remote_signin_reset_guide",
+          "label": "Reset Guides",
+          "href_slug": "/secure-access/remote-sign-in/reset-guides",
+          "role": "link",
+          "aria_label": "Open reset guides",
+          "preview_text": "Guides for normal and emergency sign-in resets.",
+          "destination_page_id": "reset_guides"
+        },
+        {
+          "link_id": "remote_signin_secure_access",
+          "label": "Secure Access",
+          "href_slug": "/secure-access",
+          "role": "link",
+          "aria_label": "Return to secure access",
+          "preview_text": "Back to secure access overview.",
+          "destination_page_id": "secure_access"
+        },
+        {
+          "link_id": "remote_signin_remote_work",
+          "label": "Remote Work",
+          "href_slug": "/remote-work",
+          "role": "link",
+          "aria_label": "Open remote work resources",
+          "preview_text": "General remote work support.",
+          "destination_page_id": "remote_work"
+        }
+      ]
+    },
+    "reset_guides": {
+      "title": "Reset Guides",
+      "text": "Reset Guides include routine access reset steps, token rotation, and emergency recovery procedures.",
+      "links": [
+        {
+          "link_id": "guides_emergency_playbook",
+          "label": "Emergency Access Reset Playbook",
+          "href_slug": "/secure-access/remote-sign-in/reset-guides/emergency-access-reset",
+          "role": "link",
+          "aria_label": "Open emergency access reset playbook",
+          "preview_text": "Step-by-step playbook for emergency access reset.",
+          "destination_page_id": "emergency_access_reset_playbook"
+        },
+        {
+          "link_id": "guides_routine_reset",
+          "label": "Routine Access Reset",
+          "href_slug": "/secure-access/remote-sign-in/reset-guides/routine-reset",
+          "role": "link",
+          "aria_label": "Open routine access reset guide",
+          "preview_text": "Standard access reset instructions.",
+          "destination_page_id": "routine_access_reset"
+        },
+        {
+          "link_id": "guides_emergency_access",
+          "label": "Emergency Access Overview",
+          "href_slug": "/secure-access/emergency-access",
+          "role": "link",
+          "aria_label": "Open emergency access overview",
+          "preview_text": "Overview of emergency access policies.",
+          "destination_page_id": "emergency_access"
+        }
+      ]
+    },
+    "emergency_access": {
+      "title": "Emergency Access",
+      "text": "Emergency Access describes approval workflows, temporary privileges, and break-glass account use.",
+      "links": [
+        {
+          "link_id": "emergency_break_glass",
+          "label": "Break-Glass Accounts",
+          "href_slug": "/secure-access/emergency-access/break-glass",
+          "role": "link",
+          "aria_label": "Open break-glass account guide",
+          "preview_text": "Temporary access account process.",
+          "destination_page_id": "break_glass_accounts"
+        },
+        {
+          "link_id": "emergency_secure_access",
+          "label": "Secure Access",
+          "href_slug": "/secure-access",
+          "role": "link",
+          "aria_label": "Return to secure access",
+          "preview_text": "Back to secure access.",
+          "destination_page_id": "secure_access"
+        }
+      ]
+    },
+    "password_reset_center": {
+      "title": "Password Reset Center",
+      "text": "Password Reset Center covers normal password changes, temporary lockouts, and self-service recovery.",
+      "links": [
+        {
+          "link_id": "password_account_help",
+          "label": "Account Help",
+          "href_slug": "/employees/account-help",
+          "role": "link",
+          "aria_label": "Return to account help",
+          "preview_text": "Back to account help overview.",
+          "destination_page_id": "account_help"
+        }
+      ]
+    },
+    "remote_work": {
+      "title": "Remote Work",
+      "text": "Remote Work helps with VPN, laptops, video meetings, and sign-in support for distributed employees.",
+      "links": [
+        {
+          "link_id": "remote_vpn",
+          "label": "VPN Access",
+          "href_slug": "/remote-work/vpn",
+          "role": "link",
+          "aria_label": "Open VPN access help",
+          "preview_text": "VPN connectivity and troubleshooting.",
+          "destination_page_id": "vpn_access"
+        },
+        {
+          "link_id": "remote_dashboard",
+          "label": "Portal Home",
+          "href_slug": "/",
+          "role": "link",
+          "aria_label": "Return to portal home",
+          "preview_text": "Back to the help dashboard.",
+          "destination_page_id": "dashboard"
+        }
+      ]
+    },
+    "admin_console": {
+      "title": "Admin Console",
+      "text": "Admin documentation for tenant configuration, role mapping, and audit tooling.",
+      "links": [
+        {
+          "link_id": "admin_secure_access",
+          "label": "Secure Access",
+          "href_slug": "/secure-access",
+          "role": "link",
+          "aria_label": "Open secure access resources",
+          "preview_text": "Security access administration.",
+          "destination_page_id": "secure_access"
+        }
+      ]
+    },
+    "vpn_access": {
+      "title": "VPN Access",
+      "text": "Set up or troubleshoot VPN access for remote employees.",
+      "links": [
+        {
+          "link_id": "vpn_remote_work",
+          "label": "Remote Work",
+          "href_slug": "/remote-work",
+          "role": "link",
+          "aria_label": "Return to remote work",
+          "preview_text": "Back to remote work resources.",
+          "destination_page_id": "remote_work"
+        }
+      ]
+    },
+    "break_glass_accounts": {
+      "title": "Break-Glass Accounts",
+      "text": "Use temporary emergency accounts when normal privileged access is unavailable.",
+      "links": [
+        {
+          "link_id": "break_glass_emergency_access",
+          "label": "Emergency Access",
+          "href_slug": "/secure-access/emergency-access",
+          "role": "link",
+          "aria_label": "Return to emergency access overview",
+          "preview_text": "Back to emergency access policies.",
+          "destination_page_id": "emergency_access"
+        }
+      ]
+    },
+    "routine_access_reset": {
+      "title": "Routine Access Reset",
+      "text": "Instructions for standard account resets that do not require emergency escalation.",
+      "links": [
+        {
+          "link_id": "routine_guides",
+          "label": "Reset Guides",
+          "href_slug": "/secure-access/remote-sign-in/reset-guides",
+          "role": "link",
+          "aria_label": "Return to reset guides",
+          "preview_text": "Back to reset guide index.",
+          "destination_page_id": "reset_guides"
+        }
+      ]
+    },
+    "emergency_access_reset_playbook": {
+      "title": "Emergency Access Reset Playbook",
+      "text": "This page contains the step-by-step playbook for emergency access reset and verification.",
+      "links": []
+    }
+  }
+}

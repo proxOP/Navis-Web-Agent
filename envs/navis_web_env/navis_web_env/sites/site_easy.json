@@ -1,0 +1,135 @@
+﻿{
+  "task_id": "easy",
+  "goal_instruction": "You are on the Acorn Docs website. Reach the Contact Support page.",
+  "start_page_id": "home",
+  "target_page_id": "contact_support",
+  "max_steps": 5,
+  "distractor_taxonomy": ["marketing navigation", "pricing detour"],
+  "pages": {
+    "home": {
+      "title": "Acorn Docs Home",
+      "text": "Welcome to Acorn Docs. You can explore product guides, pricing details, or support resources from here.",
+      "links": [
+        {
+          "link_id": "home_guides",
+          "label": "Product Guides",
+          "href_slug": "/guides",
+          "role": "link",
+          "aria_label": "Open product guides",
+          "preview_text": "Browse documentation and setup instructions.",
+          "destination_page_id": "product_guides"
+        },
+        {
+          "link_id": "home_support",
+          "label": "Support Center",
+          "href_slug": "/support",
+          "role": "link",
+          "aria_label": "Open the support center",
+          "preview_text": "Find support articles and contact options.",
+          "destination_page_id": "support_center"
+        },
+        {
+          "link_id": "home_pricing",
+          "label": "Pricing",
+          "href_slug": "/pricing",
+          "role": "link",
+          "aria_label": "View pricing",
+          "preview_text": "Compare plans and billing details.",
+          "destination_page_id": "pricing"
+        }
+      ]
+    },
+    "product_guides": {
+      "title": "Product Guides",
+      "text": "Guides for installation, setup, and usage. This page is documentation-focused and does not include contact details.",
+      "links": [
+        {
+          "link_id": "guides_home",
+          "label": "Home",
+          "href_slug": "/",
+          "role": "link",
+          "aria_label": "Return home",
+          "preview_text": "Back to the homepage.",
+          "destination_page_id": "home"
+        },
+        {
+          "link_id": "guides_support",
+          "label": "Support Center",
+          "href_slug": "/support",
+          "role": "link",
+          "aria_label": "Open the support center",
+          "preview_text": "Troubleshooting and support options.",
+          "destination_page_id": "support_center"
+        }
+      ]
+    },
+    "support_center": {
+      "title": "Support Center",
+      "text": "Support Center helps with troubleshooting, account recovery, and talking to support.",
+      "links": [
+        {
+          "link_id": "support_contact",
+          "label": "Contact Support",
+          "href_slug": "/support/contact",
+          "role": "link",
+          "aria_label": "Contact support",
+          "preview_text": "Reach the support team directly.",
+          "destination_page_id": "contact_support"
+        },
+        {
+          "link_id": "support_faq",
+          "label": "FAQ",
+          "href_slug": "/support/faq",
+          "role": "link",
+          "aria_label": "Open frequently asked questions",
+          "preview_text": "Common support questions.",
+          "destination_page_id": "faq"
+        },
+        {
+          "link_id": "support_home",
+          "label": "Home",
+          "href_slug": "/",
+          "role": "link",
+          "aria_label": "Return home",
+          "preview_text": "Go back to Acorn Docs home.",
+          "destination_page_id": "home"
+        }
+      ]
+    },
+    "pricing": {
+      "title": "Pricing",
+      "text": "Pricing and billing options for teams and individuals.",
+      "links": [
+        {
+          "link_id": "pricing_home",
+          "label": "Home",
+          "href_slug": "/",
+          "role": "link",
+          "aria_label": "Return home",
+          "preview_text": "Go back to the homepage.",
+          "destination_page_id": "home"
+        }
+      ]
+    },
+    "faq": {
+      "title": "Support FAQ",
+      "text": "Frequently asked questions about setup, billing, and account access.",
+      "links": [
+        {
+          "link_id": "faq_support",
+          "label": "Support Center",
+          "href_slug": "/support",
+          "role": "link",
+          "aria_label": "Back to support center",
+          "preview_text": "Return to support resources.",
+          "destination_page_id": "support_center"
+        }
+      ]
+    },
+    "contact_support": {
+      "title": "Contact Support",
+      "text": "This page lists support channels, response hours, and escalation instructions.",
+      "links": []
+    }
+  }
+}

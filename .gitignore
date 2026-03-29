@@ -1,4 +1,4 @@
-# IDE and Editor
+﻿# IDE and Editor
 .vscode/
 .idea/
 *.swp
@@ -68,6 +68,13 @@ extension/build/
 # Logs
 logs
 *.log
+outputs/
+envs/navis_web_env/outputs/*
+!envs/navis_web_env/outputs/.gitkeep
+!envs/navis_web_env/outputs/evals/
+!envs/navis_web_env/outputs/evals/.gitkeep
+!envs/navis_web_env/outputs/logs/
+!envs/navis_web_env/outputs/logs/.gitkeep
 
 # OS
 .DS_Store

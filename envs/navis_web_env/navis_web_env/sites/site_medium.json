@@ -1,0 +1,246 @@
+﻿{
+  "task_id": "medium",
+  "goal_instruction": "You are on the Northstar University site. Reach the Tuition Appeals Form page.",
+  "start_page_id": "landing",
+  "target_page_id": "tuition_appeals_form",
+  "max_steps": 8,
+  "distractor_taxonomy": ["financial aid detours", "student life lookalikes", "registrar cross-links"],
+  "pages": {
+    "landing": {
+      "title": "Northstar University",
+      "text": "Northstar University provides student services, registrar tools, campus resources, and financial guidance.",
+      "links": [
+        {
+          "link_id": "landing_students",
+          "label": "Student Services",
+          "href_slug": "/students",
+          "role": "link",
+          "aria_label": "Open student services",
+          "preview_text": "Student forms, requests, and support.",
+          "destination_page_id": "student_services"
+        },
+        {
+          "link_id": "landing_finances",
+          "label": "Paying for College",
+          "href_slug": "/finances",
+          "role": "link",
+          "aria_label": "Open paying for college resources",
+          "preview_text": "Billing, aid, and payment plans.",
+          "destination_page_id": "paying_for_college"
+        },
+        {
+          "link_id": "landing_campus",
+          "label": "Campus Life",
+          "href_slug": "/campus-life",
+          "role": "link",
+          "aria_label": "Open campus life",
+          "preview_text": "Housing, events, and dining.",
+          "destination_page_id": "campus_life"
+        }
+      ]
+    },
+    "student_services": {
+      "title": "Student Services",
+      "text": "Student Services helps with forms, records, and service requests for enrolled students.",
+      "links": [
+        {
+          "link_id": "students_forms",
+          "label": "Forms Library",
+          "href_slug": "/students/forms",
+          "role": "link",
+          "aria_label": "Open forms library",
+          "preview_text": "Official forms by category.",
+          "destination_page_id": "forms_library"
+        },
+        {
+          "link_id": "students_registrar",
+          "label": "Registrar Help",
+          "href_slug": "/students/registrar",
+          "role": "link",
+          "aria_label": "Open registrar help",
+          "preview_text": "Transcript and enrollment help.",
+          "destination_page_id": "registrar_help"
+        },
+        {
+          "link_id": "students_finances",
+          "label": "Student Accounts",
+          "href_slug": "/students/accounts",
+          "role": "link",
+          "aria_label": "Open student accounts",
+          "preview_text": "Billing and balance resources.",
+          "destination_page_id": "student_accounts"
+        }
+      ]
+    },
+    "forms_library": {
+      "title": "Forms Library",
+      "text": "Browse all official student forms. Categories include records, tuition, aid, and campus requests.",
+      "links": [
+        {
+          "link_id": "forms_tuition",
+          "label": "Tuition and Billing Forms",
+          "href_slug": "/students/forms/tuition",
+          "role": "link",
+          "aria_label": "Open tuition and billing forms",
+          "preview_text": "Requests related to tuition billing and charges.",
+          "destination_page_id": "tuition_billing_forms"
+        },
+        {
+          "link_id": "forms_aid",
+          "label": "Financial Aid Forms",
+          "href_slug": "/students/forms/aid",
+          "role": "link",
+          "aria_label": "Open financial aid forms",
+          "preview_text": "Appeals and aid-related forms.",
+          "destination_page_id": "financial_aid_forms"
+        },
+        {
+          "link_id": "forms_students",
+          "label": "Student Services",
+          "href_slug": "/students",
+          "role": "link",
+          "aria_label": "Back to student services",
+          "preview_text": "Return to the student services hub.",
+          "destination_page_id": "student_services"
+        }
+      ]
+    },
+    "tuition_billing_forms": {
+      "title": "Tuition and Billing Forms",
+      "text": "Forms for payment plans, billing corrections, and tuition appeals.",
+      "links": [
+        {
+          "link_id": "tuition_appeals",
+          "label": "Tuition Appeals Form",
+          "href_slug": "/students/forms/tuition/appeals",
+          "role": "link",
+          "aria_label": "Open tuition appeals form",
+          "preview_text": "Submit a formal tuition appeal request.",
+          "destination_page_id": "tuition_appeals_form"
+        },
+        {
+          "link_id": "tuition_accounts",
+          "label": "Student Accounts",
+          "href_slug": "/students/accounts",
+          "role": "link",
+          "aria_label": "Open student accounts",
+          "preview_text": "Account balances and payment policies.",
+          "destination_page_id": "student_accounts"
+        },
+        {
+          "link_id": "tuition_forms",
+          "label": "Forms Library",
+          "href_slug": "/students/forms",
+          "role": "link",
+          "aria_label": "Return to forms library",
+          "preview_text": "Back to all official forms.",
+          "destination_page_id": "forms_library"
+        }
+      ]
+    },
+    "financial_aid_forms": {
+      "title": "Financial Aid Forms",
+      "text": "Aid verification, special circumstance requests, and scholarship processing forms.",
+      "links": [
+        {
+          "link_id": "aid_finances",
+          "label": "Paying for College",
+          "href_slug": "/finances",
+          "role": "link",
+          "aria_label": "Open paying for college resources",
+          "preview_text": "General financial guidance.",
+          "destination_page_id": "paying_for_college"
+        }
+      ]
+    },
+    "registrar_help": {
+      "title": "Registrar Help",
+      "text": "Registrar Help covers transcripts, enrollment, course withdrawals, and calendar deadlines.",
+      "links": [
+        {
+          "link_id": "registrar_students",
+          "label": "Student Services",
+          "href_slug": "/students",
+          "role": "link",
+          "aria_label": "Return to student services",
+          "preview_text": "Back to the main student services hub.",
+          "destination_page_id": "student_services"
+        }
+      ]
+    },
+    "student_accounts": {
+      "title": "Student Accounts",
+      "text": "Student Accounts includes billing statements, payment plans, and overdue balance policies.",
+      "links": [
+        {
+          "link_id": "accounts_tuition",
+          "label": "Billing Adjustments",
+          "href_slug": "/students/accounts/adjustments",
+          "role": "link",
+          "aria_label": "Open billing adjustments",
+          "preview_text": "Corrections and account review options.",
+          "destination_page_id": "billing_adjustments"
+        },
+        {
+          "link_id": "accounts_forms",
+          "label": "Forms Library",
+          "href_slug": "/students/forms",
+          "role": "link",
+          "aria_label": "Return to forms library",
+          "preview_text": "Back to all official forms.",
+          "destination_page_id": "forms_library"
+        }
+      ]
+    },
+    "billing_adjustments": {
+      "title": "Billing Adjustments",
+      "text": "Request billing corrections, payment plan updates, and account reviews.",
+      "links": [
+        {
+          "link_id": "adjustments_accounts",
+          "label": "Student Accounts",
+          "href_slug": "/students/accounts",
+          "role": "link",
+          "aria_label": "Return to student accounts",
+          "preview_text": "Go back to the accounts overview.",
+          "destination_page_id": "student_accounts"
+        }
+      ]
+    },
+    "paying_for_college": {
+      "title": "Paying for College",
+      "text": "Financial guidance for tuition, aid, scholarships, and payment timing.",
+      "links": [
+        {
+          "link_id": "finances_aid",
+          "label": "Financial Aid",
+          "href_slug": "/finances/aid",
+          "role": "link",
+          "aria_label": "Open financial aid resources",
+          "preview_text": "Aid eligibility and award information.",
+          "destination_page_id": "financial_aid_forms"
+        }
+      ]
+    },
+    "campus_life": {
+      "title": "Campus Life",
+      "text": "Housing, events, clubs, dining, and on-campus support resources.",
+      "links": [
+        {
+          "link_id": "campus_landing",
+          "label": "University Home",
+          "href_slug": "/",
+          "role": "link",
+          "aria_label": "Return to university home",
+          "preview_text": "Back to Northstar University home.",
+          "destination_page_id": "landing"
+        }
+      ]
+    },
+    "tuition_appeals_form": {
+      "title": "Tuition Appeals Form",
+      "text": "This page contains the official tuition appeal submission form and deadlines.",
+      "links": []
+    }
+  }
+}
