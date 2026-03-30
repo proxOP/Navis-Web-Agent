@@ -1,4 +1,4 @@
-# Navis Chrome Extension - Python Dependencies
+﻿# Navis Chrome Extension - Python Dependencies
 
 # Development and Testing
 pytest>=7.4.0
@@ -20,6 +20,7 @@ webdriver-manager>=4.0.0
 # LLM Integration (for testing)
 openai>=1.0.0
 anthropic>=0.7.0
+google-genai>=0.3.0
 
 # Utility Libraries
 python-dotenv>=1.0.0

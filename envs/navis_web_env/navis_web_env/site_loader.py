@@ -58,7 +58,7 @@ def list_task_ids() -> list[str]:
 def load_task(task_id: str) -> TaskDefinition:
     if task_id not in TASK_FILE_MAP:
         raise ValueError(f"Unknown task_id '{task_id}'. Expected one of: {', '.join(list_task_ids())}")
-    payload = json.loads(TASK_FILE_MAP[task_id].read_text(encoding="utf-8"))
+    payload = json.loads(TASK_FILE_MAP[task_id].read_text(encoding="utf-8-sig"))
     pages = {
         page_id: PageDefinition(
             page_id=page_id,

@@ -111,6 +111,12 @@ cd envs/navis_web_env
 pip install -e .
 ```
 
+If you only need the optional Google baseline dependency, install:
+
+```bash
+pip install -U google-genai
+```
+
 Run the server locally:
 
 ```bash
@@ -157,24 +163,39 @@ docker run -p 8000:8000 navis-web-env
 
 ## Baseline Inference
 
-The hackathon baseline script is at the repo root as [`inference.py`](../../inference.py). It:
+The hackathon baseline script is at the repo root as [`inference.py`](../../inference.py). It supports two agent modes:
 
-- reads `API_BASE_URL`, `MODEL_NAME`, `OPENAI_API_KEY`, and `HF_TOKEN`
-- uses the OpenAI client for all model calls
-- runs all 3 tasks in fixed order
-- saves a reproducible report to `outputs/evals/baseline.json`
+- `heuristic` (default): no LLM calls, uses token overlap / semantic similarity between the goal and available links
+- `google_genai`: uses `google-genai` with `genai.Client(api_key=...)`
 
-Example:
+Environment variables:
+
+- `BASELINE_AGENT=heuristic` or `BASELINE_AGENT=google_genai`
+- `MODEL_NAME` only needed for `google_genai`
+- `GOOGLE_GENAI_API_KEY` only needed for `google_genai`
+- `HF_TOKEN` optional for submission workflows
+
+Example heuristic run:
 
 ```bash
-set OPENAI_API_KEY=...
-set MODEL_NAME=gpt-4.1-mini
+set BASELINE_AGENT=heuristic
 python inference.py
 ```
 
+Example Google GenAI run:
+
+```bash
+set BASELINE_AGENT=google_genai
+set GOOGLE_GENAI_API_KEY=...
+set MODEL_NAME=gemini-2.0-flash
+python inference.py
+```
+
+Both modes run all 3 tasks in fixed order and save a reproducible report to `outputs/evals/baseline.json`.
+
 ## Expected Baseline Outputs
 
-The exact score depends on the configured model, but the output report includes:
+The exact score depends on the selected agent mode and model, but the output report includes:
 
 - per-task score
 - path taken
