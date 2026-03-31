@@ -11,9 +11,9 @@ ROOT = os.path.join(os.path.dirname(__file__), "..")
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from envs.navis_web_env.navis_web_env.server.app import app
-from envs.navis_web_env.navis_web_env.server.navis_web_environment import NavisWebEnvironment
-from envs.navis_web_env.navis_web_env.site_loader import list_task_ids, shortest_path_length, load_task
+from navis_web_env.server.app import app
+from navis_web_env.server.navis_web_environment import NavisWebEnvironment
+from navis_web_env.site_loader import list_task_ids, shortest_path_length, load_task
 
 
 def _post_step(client: TestClient, click_link_id: str):

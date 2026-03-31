@@ -107,6 +107,7 @@ Grader-facing episode summaries include:
 Install dependencies:
 
 ```bash
+cd envs/navis_web_env
 pip install -e .
 ```
 
@@ -125,7 +126,8 @@ uv run --project . server --host 0.0.0.0 --port 8000
 Or with uvicorn:
 
 ```bash
-uvicorn navis_web_env.server.app:app --host 0.0.0.0 --port 8000
+cd envs/navis_web_env
+uvicorn server.app:app --host 0.0.0.0 --port 8000
 ```
 
 For the fallback plain-HTTP path, `POST /reset` now returns a `session_id`. Subsequent `POST /step` and `GET /state` calls should include that `session_id` so episode state is preserved even when requests are handled independently.
@@ -135,6 +137,7 @@ For the fallback plain-HTTP path, `POST /reset` now returns a `session_id`. Subs
 From the environment directory:
 
 ```bash
+cd envs/navis_web_env
 openenv validate --verbose
 ```
 
@@ -149,6 +152,7 @@ pip install "openenv-core[core]"
 Build:
 
 ```bash
+cd envs/navis_web_env
 openenv build
 ```
 
@@ -161,7 +165,7 @@ docker run -p 8000:8000 navis-web-env
 
 ## Baseline Inference
 
-The hackathon baseline script is at the repo root as [`inference.py`](./inference.py). It supports two agent modes:
+The hackathon baseline script is at the repo root as [`inference.py`](../../inference.py). It supports two agent modes:
 
 - `heuristic` (default): no LLM calls, uses token overlap / semantic similarity between the goal and available links
 - `google_genai`: uses `google-genai` with `genai.Client(api_key=...)`

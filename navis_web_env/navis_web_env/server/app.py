@@ -14,7 +14,7 @@ app = create_app(NavisWebEnvironment, NavisWebAction, NavisWebObservation, env_n
 def main(host: str = "0.0.0.0", port: int = 8000) -> None:
     """Run the environment server locally."""
 
-    uvicorn.run("navis_web_env.server.app:app", host=host, port=port, reload=False)
+    uvicorn.run("server.app:app", host=host, port=port, reload=False)
 
 
 if __name__ == "__main__":  # pragma: no cover
